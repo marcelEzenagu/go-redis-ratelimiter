@@ -37,8 +37,13 @@ func main() {
 	router.GET("/api", func(c *gin.Context) {
 
 		key := c.ClientIP()
-		limit := 4
 
+		limit := 4
+		if envLimit := os.Getenv("RATE_LIMIT"); envLimit != "" {
+			if parsed, err := strconv.Atoi(envLimit); err == nil {
+				limit = parsed
+			}
+		}
 		// middleware
 		allowed, remains, err := limitP.Allow(c, key, limit, time.Minute)
 		if err != nil {
